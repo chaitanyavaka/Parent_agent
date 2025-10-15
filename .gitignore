@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+agent/
+.agent/
+env/
+.venv/
+.env/
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python environment files
+*.env
+.env
+
+# Byte-compiled / cache
+__pycache__/
+*.pyc
+
+# Flask-specific
+instance/
+*.db
