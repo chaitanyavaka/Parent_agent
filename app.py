@@ -26,7 +26,7 @@ def clear_temp_folders():
     os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
     print("--- Temporary folders cleared and recreated ---")
 
-# --- FIX: Call the cleanup function here to run on every startup ---
+# Call the cleanup function on every startup
 clear_temp_folders()
 
 # Initialize Groq client
@@ -47,9 +47,10 @@ def get_parent_company_info(company_name: str) -> dict:
         return { "error": "API client not initialized. Check your GROQ_API_KEY." }
     
     try:
-        parent_prompt = f"""What is the parent company of {company_name}? 
-        Respond with ONLY the parent company name. 
-        If {company_name} has no parent company or is itself the parent, respond with '{company_name}'."""
+        # --- IMPROVED PROMPT ---
+        parent_prompt = f"""Identify the legal parent company of the business named "{company_name}".
+        Respond with ONLY the official name of the parent company.
+        If the company has no parent (it is the ultimate parent), respond with '{company_name}'."""
         
         parent_response = client.chat.completions.create(
             messages=[{"role": "user", "content": parent_prompt}],
@@ -87,9 +88,10 @@ def get_parent_company_only(company_name: str) -> str:
     if not client:
         return "Error: API client not initialized"
 
-    parent_prompt = f"""What is the parent company of {company_name}? 
-    Respond with ONLY the parent company name. 
-    If {company_name} has no parent company or is itself the parent, respond with 'No parent company'."""
+    # --- IMPROVED PROMPT ---
+    parent_prompt = f"""Identify the legal parent company of the business named "{company_name}".
+    Respond with ONLY the official name of the parent company.
+    If the company has no parent (it is the ultimate parent), respond with 'No parent company'."""
     
     try:
         parent_response = client.chat.completions.create(
@@ -204,6 +206,4 @@ def download_file(filename):
         return jsonify({"error": f"Could not download file: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    # The clear_temp_folders() call is already made above for both environments.
-    # We can keep it here for clarity during local development if we want, but it's redundant.
     app.run(debug=True, port=5000)
