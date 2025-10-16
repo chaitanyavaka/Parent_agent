@@ -3,358 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parent Company Finder</title>
+    <title>AI Parent Company Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        body { 
+            font-family: 'Sora', sans-serif; 
+            background-color: #0d1117;
+            color: #e6edf3;
+            overflow-x: hidden;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        /* Animated Gradient Background */
+        .background-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+        .blob-1 {
+            width: 400px; height: 400px;
+            background: #4f46e5;
+            top: -150px; left: -150px;
+            animation: move-blob-1 25s infinite alternate;
+        }
+        .blob-2 {
+            width: 500px; height: 500px;
+            background: #0d9488;
+            bottom: -200px; right: -200px;
+            animation: move-blob-2 30s infinite alternate;
+        }
+        @keyframes move-blob-1 {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(200px, 100px) scale(1.2); }
+        }
+        @keyframes move-blob-2 {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(-200px, -150px) scale(0.8); }
         }
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
+        /* Glassmorphism Card */
+        .card {
+            background: rgba(31, 41, 55, 0.3); /* semi-transparent dark gray */
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
-            outline: none;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        input[type="text"]:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+        /* Buttons and Interactive Elements */
+        .btn-glow {
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        .btn-glow:hover {
+            box-shadow: 0 0 25px var(--glow-color);
+            transform: translateY(-3px);
+        }
+        .btn-primary { --glow-color: rgba(99, 102, 241, 0.5); background-color: #4f46e5; }
+        .btn-secondary { --glow-color: rgba(16, 185, 129, 0.5); background-color: #059669; }
+        
+        .custom-input {
+            background-color: rgba(55, 65, 81, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        .custom-input:focus {
+            background-color: rgba(55, 65, 81, 0.7);
+            border-color: #4f46e5;
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
+        .file-input-custom-label {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            background-color: #374151;
+            color: #e5e7eb;
+            transition: background-color 0.2s;
+            display: inline-block;
         }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .file-input-custom-label:hover { background-color: #4b5563; }
 
         .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            border-radius: 9999px;
+            transition: width 0.3s ease;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* Entrance Animations */
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out forwards;
+            opacity: 0;
         }
-
-        .result-container {
-            display: none;
-            margin-top: 30px;
-            animation: fadeIn 0.5s ease-out;
-        }
-
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .company-name {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .parent-company {
-            font-size: 1.8em;
-            color: #333;
-            font-weight: 700;
-            margin-bottom: 15px;
-            word-wrap: break-word;
-        }
-
-        .no-parent {
-            color: #e74c3c;
-        }
-
-        .description {
-            color: #555;
-            line-height: 1.6;
-            font-size: 0.95em;
-            padding-top: 15px;
-            border-top: 2px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .error-message {
-            display: none;
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #c33;
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .example-companies {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.85em;
-            color: #888;
-        }
-
-        .example-companies span {
-            display: inline-block;
-            background: #f0f0f0;
-            padding: 5px 12px;
-            border-radius: 15px;
-            margin: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .example-companies span:hover {
-            background: #667eea;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .loading-text {
-            display: none;
-            text-align: center;
-            color: white;
-            margin-top: 10px;
-            font-size: 0.9em;
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🔍 Parent Company Finder</h1>
-        <p class="subtitle">Discover the parent company of any brand</p>
-        
-        <div class="search-box">
-            <input type="text" id="companyInput" placeholder="Enter company name (e.g., Instagram, YouTube)" autofocus>
-        </div>
-        
-        <button id="searchBtn" onclick="searchCompany()">
-            <span id="btnText">Search</span>
-            <div class="spinner" id="spinner"></div>
-        </button>
-        
-        <div class="loading-text" id="loadingText">Searching...</div>
-        
-        <div class="error-message" id="errorMessage"></div>
-        
-        <div class="result-container" id="resultContainer">
-            <div class="result-card">
-                <div class="company-name" id="searchedCompany"></div>
-                <div class="parent-company" id="parentCompany"></div>
-                <div class="description" id="description"></div>
-            </div>
-        </div>
+<body class="min-h-screen">
+    <div class="background-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
 
-        <div class="example-companies">
-            <strong>Try:</strong>
-            <span onclick="fillExample('Instagram')">Instagram</span>
-            <span onclick="fillExample('YouTube')">YouTube</span>
-            <span onclick="fillExample('WhatsApp')">WhatsApp</span>
-            <span onclick="fillExample('LinkedIn')">LinkedIn</span>
+    <div class="relative container mx-auto p-4 md:p-8 max-w-5xl">
+        <header class="text-center mb-12 animate-fade-in">
+            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white">AI Parent Company Finder</h1>
+            <p class="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">Instantly find parent companies or batch-process entire Excel files with the power of AI.</p>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-10">
+            <!-- Single Company Lookup -->
+            <div class="card animate-fade-in" style="animation-delay: 200ms;">
+                <div class="p-8">
+                    <h2 class="text-2xl font-semibold mb-5 text-gray-200 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-indigo-400" viewBox="0 0 24 24" fill="currentColor"><path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"></path></svg>
+                        Single Lookup
+                    </h2>
+                    <form id="lookup-form" class="space-y-5">
+                        <div>
+                            <label for="company-name" class="block text-sm font-medium text-gray-400 mb-1">Company Name</label>
+                            <input type="text" id="company-name" name="company-name" class="custom-input mt-1 block w-full px-4 py-2.5 rounded-lg shadow-sm focus:outline-none" placeholder="e.g., Instagram" required>
+                        </div>
+                        <button type="submit" class="w-full btn-glow btn-primary text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center text-base">
+                            <span id="lookup-btn-text">Find Parent Company</span>
+                            <div id="lookup-spinner" class="spinner w-5 h-5 border-2 border-white rounded-full ml-3 hidden"></div>
+                        </button>
+                    </form>
+                    <div id="lookup-result-container" class="mt-6 p-5 bg-gray-800/50 rounded-lg border border-gray-700 hidden">
+                        <h3 class="font-bold text-lg text-indigo-300" id="result-parent"></h3>
+                        <p class="text-gray-300 mt-2" id="result-description"></p>
+                    </div>
+                    <div id="lookup-error-container" class="mt-4 p-4 bg-red-900/50 text-red-300 rounded-lg hidden border border-red-700"></div>
+                </div>
+            </div>
+
+            <!-- Batch Upload -->
+            <div class="card animate-fade-in" style="animation-delay: 400ms;">
+                <div class="p-8 flex flex-col">
+                    <h2 class="text-2xl font-semibold mb-5 text-gray-200 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-teal-400" viewBox="0 0 24 24" fill="currentColor"><path d="M11 15h2V9h3l-4-5-4 5h3z"></path><path d="M20 18H4v-7c0-1.103.897-2 2-2h12c1.103 0 2 .897 2 2v7zM6 13v5h12v-5H6z"></path></svg>
+                        Batch Process Excel
+                    </h2>
+                    <form id="upload-form" class="space-y-5">
+                        <input type="file" id="file-upload" name="file" accept=".xlsx, .xls" class="hidden" required>
+                        <label for="file-upload" class="file-input-custom-label text-center w-full">
+                            <span id="file-label-text">Select .xlsx or .xls File</span>
+                        </label>
+                        
+                        <!-- This view shows after a file is selected -->
+                        <div id="file-info-view" class="hidden space-y-4">
+                             <div class="p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
+                                <p class="text-sm text-gray-300 font-semibold truncate" id="file-name"></p>
+                                <p class="text-xs text-gray-500" id="file-size"></p>
+                             </div>
+                             <!-- Upload progress bar -->
+                             <div id="upload-progress-container" class="hidden">
+                                <div class="progress-bar-container">
+                                    <div id="upload-progress-bar" class="progress-bar"></div>
+                                </div>
+                                <p id="upload-progress-text" class="text-center text-xs text-gray-400 mt-1">Uploading...</p>
+                            </div>
+                             <button type="submit" class="w-full btn-glow btn-secondary text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center text-base">
+                                <span id="upload-btn-text">Confirm & Upload for Preview</span>
+                                <div id="upload-spinner" class="spinner w-5 h-5 border-2 border-white rounded-full ml-3 hidden"></div>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="processing-view" class="hidden mt-4 space-y-4">
+                        <div class="p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
+                            <h3 class="font-semibold text-lg text-gray-200">File Ready for Processing</h3>
+                            <p class="text-sm text-gray-400">Total companies: <span id="total-companies" class="font-bold text-gray-200"></span></p>
+                            <p class="text-sm text-gray-400 mt-1">Preview:</p>
+                            <ul id="company-preview-list" class="list-disc list-inside text-sm text-gray-500 mt-2 pl-2"></ul>
+                        </div>
+                        <button id="process-btn" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="process-btn-text">Start Processing</span>
+                            <div id="process-spinner" class="spinner w-5 h-5 border-2 border-white rounded-full ml-3 hidden"></div>
+                        </button>
+                    </div>
+
+                    <div id="download-view" class="hidden mt-4 text-center space-y-4">
+                        <div class="p-5 bg-green-900/50 border border-green-700 rounded-lg text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-green-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-1.999 14.413-3.713-3.705L7.7 11.292l2.299 2.295 5.294-5.294 1.414 1.414-6.706 6.706z"></path></svg>
+                            <h3 class="font-semibold text-xl text-green-300 mt-2">Processing Complete!</h3>
+                            <p class="text-gray-400">Your file is ready.</p>
+                        </div>
+                        <a id="download-link" href="#" class="inline-block w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 hover:shadow-lg">
+                            Download Processed File
+                        </a>
+                        <button id="reset-btn" class="text-sm text-gray-500 hover:underline">Process another file</button>
+                    </div>
+                    <div id="upload-error-container" class="mt-4 p-4 bg-red-900/50 text-red-300 rounded-lg hidden border border-red-700"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const input = document.getElementById('companyInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const btnText = document.getElementById('btnText');
-        const spinner = document.getElementById('spinner');
-        const loadingText = document.getElementById('loadingText');
-        const resultContainer = document.getElementById('resultContainer');
-        const errorMessage = document.getElementById('errorMessage');
+        const lookupForm = document.getElementById('lookup-form');
+        const lookupResultContainer = document.getElementById('lookup-result-container');
+        const lookupErrorContainer = document.getElementById('lookup-error-container');
         
-        // Allow Enter key to search
-        input.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchCompany();
-            }
-        });
+        const uploadForm = document.getElementById('upload-form');
+        const fileInput = document.getElementById('file-upload');
+        const fileLabelText = document.getElementById('file-label-text');
+        const fileInfoView = document.getElementById('file-info-view');
+        const fileNameEl = document.getElementById('file-name');
+        const fileSizeEl = document.getElementById('file-size');
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
+        const uploadProgressText = document.getElementById('upload-progress-text');
+        
+        const processingView = document.getElementById('processing-view');
+        const downloadView = document.getElementById('download-view');
+        const uploadErrorContainer = document.getElementById('upload-error-container');
+        const processBtn = document.getElementById('process-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        let uploadedFilename = '';
 
-        function fillExample(company) {
-            input.value = company;
-            input.focus();
-        }
-
-        async function searchCompany() {
-            const companyName = input.value.trim();
-            
-            if (!companyName) {
-                showError('Please enter a company name');
-                return;
-            }
-            
-            // Reset UI
-            hideError();
-            hideResult();
-            setLoading(true);
-            
+        // --- Single Lookup Logic ---
+        lookupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const companyName = document.getElementById('company-name').value;
+            const btnText = document.getElementById('lookup-btn-text');
+            const spinner = document.getElementById('lookup-spinner');
+            btnText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+            lookupResultContainer.classList.add('hidden');
+            lookupErrorContainer.classList.add('hidden');
             try {
                 const response = await fetch('/lookup', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ company_name: companyName })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company_name: companyName }),
                 });
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    showError(data.error);
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('result-parent').textContent = result.parent_company;
+                    document.getElementById('result-description').textContent = result.description;
+                    lookupResultContainer.classList.remove('hidden');
                 } else {
-                    showResult(companyName, data.parent_company, data.description);
+                    lookupErrorContainer.textContent = result.error || 'An unknown error occurred.';
+                    lookupErrorContainer.classList.remove('hidden');
                 }
             } catch (error) {
-                showError('Network error. Please try again.');
+                lookupErrorContainer.textContent = 'Failed to connect to the server.';
+                lookupErrorContainer.classList.remove('hidden');
             } finally {
-                setLoading(false);
+                btnText.classList.remove('hidden');
+                spinner.classList.add('hidden');
             }
-        }
+        });
 
-        function setLoading(loading) {
-            if (loading) {
-                btnText.style.display = 'none';
-                spinner.style.display = 'block';
-                loadingText.style.display = 'block';
-                searchBtn.disabled = true;
-            } else {
-                btnText.style.display = 'block';
-                spinner.style.display = 'none';
-                loadingText.style.display = 'none';
-                searchBtn.disabled = false;
+        // --- Batch Upload Logic ---
+        
+        // Show file info on selection
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileNameEl.textContent = file.name;
+                fileSizeEl.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                fileLabelText.parentElement.classList.add('hidden'); // Hide the "Select File" button
+                fileInfoView.classList.remove('hidden');
             }
-        }
+        });
 
-        function showResult(company, parent, description) {
-            document.getElementById('searchedCompany').textContent = company;
-            
-            const parentElem = document.getElementById('parentCompany');
-            parentElem.textContent = parent;
-            
-            if (parent === 'No parent company') {
-                parentElem.classList.add('no-parent');
-            } else {
-                parentElem.classList.remove('no-parent');
+        // Handle form submission with XHR for progress tracking
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const file = fileInput.files[0];
+            if (!file) {
+                uploadErrorContainer.textContent = "Please select a file to upload.";
+                uploadErrorContainer.classList.remove('hidden');
+                return;
             }
+            const formData = new FormData();
+            formData.append('file', file);
             
-            document.getElementById('description').textContent = description;
-            resultContainer.style.display = 'block';
-        }
+            const xhr = new XMLHttpRequest();
+            const uploadBtn = uploadForm.querySelector('button[type="submit"]');
 
-        function hideResult() {
-            resultContainer.style.display = 'none';
-        }
+            xhr.open('POST', '/upload', true);
 
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-        }
+            // Progress event
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    uploadProgressBar.style.width = percentComplete + '%';
+                    uploadProgressText.textContent = `Uploading... ${Math.round(percentComplete)}%`;
+                }
+            };
+            
+            // On successful upload and server response
+            xhr.onload = () => {
+                uploadBtn.disabled = false;
+                uploadBtn.querySelector('span').classList.remove('hidden');
+                uploadBtn.querySelector('div').classList.add('hidden');
+                uploadProgressContainer.classList.add('hidden');
 
-        function hideError() {
-            errorMessage.style.display = 'none';
-        }
+                const result = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && result.success) {
+                    uploadedFilename = result.filename;
+                    document.getElementById('total-companies').textContent = result.total_companies;
+                    const previewList = document.getElementById('company-preview-list');
+                    previewList.innerHTML = '';
+                    result.companies.forEach(name => {
+                        const li = document.createElement('li');
+                        li.textContent = name;
+                        previewList.appendChild(li);
+                    });
+                    uploadForm.classList.add('hidden');
+                    fileInfoView.classList.add('hidden');
+                    processingView.classList.remove('hidden');
+                } else {
+                    uploadErrorContainer.textContent = result.error || 'Failed to upload file.';
+                    uploadErrorContainer.classList.remove('hidden');
+                }
+            };
+
+            // On error
+            xhr.onerror = () => {
+                uploadErrorContainer.textContent = 'An error occurred during the upload. Please try again.';
+                uploadErrorContainer.classList.remove('hidden');
+                uploadBtn.disabled = false;
+                uploadBtn.querySelector('span').classList.remove('hidden');
+                uploadBtn.querySelector('div').classList.add('hidden');
+                uploadProgressContainer.classList.add('hidden');
+            };
+
+            // Start the upload
+            uploadBtn.disabled = true;
+            uploadBtn.querySelector('span').classList.add('hidden');
+            uploadBtn.querySelector('div').classList.remove('hidden');
+            uploadProgressContainer.classList.remove('hidden');
+            uploadErrorContainer.classList.add('hidden');
+            xhr.send(formData);
+        });
+
+        processBtn.addEventListener('click', async () => {
+            const btnText = document.getElementById('process-btn-text');
+            const spinner = document.getElementById('process-spinner');
+            processBtn.disabled = true;
+            btnText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+            uploadErrorContainer.classList.add('hidden');
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: uploadedFilename }),
+                });
+                const result = await response.json();
+                if(response.ok) {
+                    document.getElementById('download-link').href = `/download/${result.output_filename}`;
+                    processingView.classList.add('hidden');
+                    downloadView.classList.remove('hidden');
+                } else {
+                    uploadErrorContainer.textContent = result.error || 'Failed to process file.';
+                    uploadErrorContainer.classList.remove('hidden');
+                }
+            } catch (error) {
+                uploadErrorContainer.textContent = 'An error occurred during processing.';
+                uploadErrorContainer.classList.remove('hidden');
+            } finally {
+                processBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            uploadForm.reset();
+            fileLabelText.parentElement.classList.remove('hidden'); // Show "Select File" button
+            fileInfoView.classList.add('hidden');
+            downloadView.classList.add('hidden');
+            processingView.classList.add('hidden');
+            uploadForm.classList.remove('hidden');
+            uploadErrorContainer.classList.add('hidden');
+            uploadedFilename = '';
+        });
     </script>
 </body>
 </html>
