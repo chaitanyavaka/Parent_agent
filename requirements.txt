@@ -4,4 +4,3 @@ python-dotenv
 Werkzeug
 gunicorn
 pandas
-time
