@@ -16,6 +16,20 @@ app.config['OUTPUT_FOLDER'] = 'outputs'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['ALLOWED_EXTENSIONS'] = {'xlsx', 'xls'}
 
+def clear_temp_folders():
+    """Deletes and recreates the upload and output folders for a clean start."""
+    print("--- Clearing temporary file folders ---")
+    for folder in [app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER']]:
+        if os.path.exists(folder):
+            shutil.rmtree(folder)
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+    print("--- Temporary folders cleared and recreated ---")
+
+# --- FIX: Call the cleanup function here to run on every startup ---
+clear_temp_folders()
+
+# Initialize Groq client
 try:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
@@ -189,16 +203,7 @@ def download_file(filename):
     except Exception as e:
         return jsonify({"error": f"Could not download file: {str(e)}"}), 500
 
-def clear_temp_folders():
-    print("--- Clearing temporary file folders ---")
-    for folder in [app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER']]:
-        if os.path.exists(folder):
-            shutil.rmtree(folder)
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
-    print("--- Temporary folders cleared and recreated ---")
-
 if __name__ == '__main__':
-    clear_temp_folders()
+    # The clear_temp_folders() call is already made above for both environments.
+    # We can keep it here for clarity during local development if we want, but it's redundant.
     app.run(debug=True, port=5000)
-
