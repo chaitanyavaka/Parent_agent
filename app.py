@@ -8,18 +8,14 @@ import time
 import io
 import shutil
 
-# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'outputs'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['ALLOWED_EXTENSIONS'] = {'xlsx', 'xls'}
 
-# NOTE: The initial folder creation is now handled by the startup cleanup function.
-
-# Initialize Groq client
 try:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
@@ -36,11 +32,11 @@ def get_parent_company_info(company_name: str) -> dict:
     if not client:
         return { "error": "API client not initialized. Check your GROQ_API_KEY." }
     
-    parent_prompt = f"""What is the parent company of {company_name}? 
-    Respond with ONLY the parent company name. 
-    If {company_name} has no parent company or is itself the parent, respond with '{company_name}'."""
-    
     try:
+        parent_prompt = f"""What is the parent company of {company_name}? 
+        Respond with ONLY the parent company name. 
+        If {company_name} has no parent company or is itself the parent, respond with '{company_name}'."""
+        
         parent_response = client.chat.completions.create(
             messages=[{"role": "user", "content": parent_prompt}],
             model="llama-3.1-8b-instant",
@@ -74,10 +70,6 @@ def get_parent_company_info(company_name: str) -> dict:
         }
 
 def get_parent_company_only(company_name: str) -> str:
-    """
-    Gets only the parent company name. This is used for batch processing
-    to stay within API rate limits.
-    """
     if not client:
         return "Error: API client not initialized"
 
@@ -98,7 +90,6 @@ def get_parent_company_only(company_name: str) -> str:
             return parent_company
             
     except Exception as e:
-        # For batch processing, a simple error message is better
         return "API Error"
 
 @app.route('/')
@@ -166,12 +157,11 @@ def process_file():
         first_column = df.columns[0]
         
         parent_companies = []
-        # Process each company using the new, efficient function
         for company in df[first_column].astype(str):
             if company.strip() and company.lower() != 'nan':
                 parent = get_parent_company_only(company.strip())
                 parent_companies.append(parent)
-                time.sleep(0.5) # A small delay to avoid hitting limits
+                time.sleep(0.5) 
             else:
                 parent_companies.append("")
 
@@ -200,7 +190,6 @@ def download_file(filename):
         return jsonify({"error": f"Could not download file: {str(e)}"}), 500
 
 def clear_temp_folders():
-    """Deletes and recreates the upload and output folders for a clean start."""
     print("--- Clearing temporary file folders ---")
     for folder in [app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER']]:
         if os.path.exists(folder):
